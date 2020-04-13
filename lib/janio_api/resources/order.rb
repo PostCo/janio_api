@@ -1,9 +1,12 @@
 module JanioAPI
   class Order < Base
     self.prefix = "/api/order/"
-    self.tracking_path = "/api/tracker/query-by-tracking-nos/"
 
     class << self
+      def tracking_path
+        "/api/tracker/query-by-tracking-nos/"
+      end
+
       # override find to customize url, and only allow find_every
       # use to find the parcel info, include the label pdf url
       # check http://apidocs.janio.asia/view for more information
