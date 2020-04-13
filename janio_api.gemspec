@@ -4,7 +4,7 @@ Gem::Specification.new do |spec|
   spec.name = "janio_api"
   spec.version = JanioAPI::VERSION
   spec.authors = ["Andy Chong"]
-  spec.email = ["andy_gg1996@hotmail.com"]
+  spec.email = ["andygg1996personal@gmail.com"]
 
   spec.summary = "Ruby object based Janio API wrapper."
   spec.homepage = "https://github.com/PostCo/janio_api"
@@ -27,4 +27,9 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "activeresource"
+
+  spec.add_development_dependency "rspec", "~> 3.2"
+  spec.add_development_dependency "dotenv"
+  spec.add_development_dependency "pry-byebug"
+  spec.add_development_dependency "pry"
 end

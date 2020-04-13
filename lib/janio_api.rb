@@ -1,7 +1,7 @@
 require "janio_api/version"
 require "active_resource"
 require_relative "zeitwerk_loader"
-
+require "dotenv/load"
 module JanioAPI
   class << self
     attr_accessor :config
