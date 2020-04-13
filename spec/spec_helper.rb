@@ -12,3 +12,8 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
+
+JanioAPI.configure do |config|
+  config.api_host = ENV["API_HOST"]
+  config.api_token = ENV["API_TOKEN"]
+end

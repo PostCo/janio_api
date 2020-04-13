@@ -5,4 +5,6 @@ gemspec
 
 gem "rake", "~> 12.0"
 gem "rspec", "~> 3.0"
-gem 'activeresource'
+gem "env"
+gem 'pry-byebug'
+gem 'pry'
