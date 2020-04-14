@@ -1,11 +1,12 @@
 module JanioAPI
   class Item < Base
+    VALID_ITEM_CATEGORIES = ["Fashion Accessories", "Fashion Footwear", "Fashion Apparels (Men)", "Fashion Apparels (Women)",
+                             "Fashion Apparels (Babies, Toddlers and Children)", "Fashion Apparel", "Electronics",
+                             "Electronics (Non-Telecommunications)", "Electronics (Telecommunications)", "Lifestyle Products",
+                             "Lifestyle (Health Related)", "Lifestyle (Beauty Related)", "Lifestyle (Home & Living)",
+                             "Lifestyle (Hobbies & Collection)", "Lifestyle (Pantry & Packaged Food & Beverages)", "Others", "Printed Matters"].freeze
     validates :item_desc, :item_quantity, :item_price_value, :item_price_currency, presence: true
-    validates :item_category, inclusion: ["Fashion Accessories", "Fashion Footwear", "Fashion Apparels (Men)", "Fashion Apparels (Women)",
-                                          "Fashion Apparels (Babies, Toddlers and Children)", "Fashion Apparel", "Electronics",
-                                          "Electronics (Non-Telecommunications)", "Electronics (Telecommunications)", "Lifestyle Products",
-                                          "Lifestyle (Health Related)", "Lifestyle (Beauty Related)", "Lifestyle (Home & Living)",
-                                          "Lifestyle (Hobbies & Collection)", "Lifestyle (Pantry & Packaged Food & Beverages)", "Others", "Printed Matters"]
+    validates :item_category, inclusion: {in: VALID_ITEM_CATEGORIES, message: "%{value} is not a valid item category, valid item categories are #{VALID_ITEM_CATEGORIES.join(", ")}"}
 
     class << self
       def find(*args)

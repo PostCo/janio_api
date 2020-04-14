@@ -19,6 +19,7 @@ module JanioAPI
                            "Singapore", "South Korea", "Spain", "Taiwan", "Thailand", "UAE", "UK", "US", "Vietnam"].freeze
 
     POSTAL_EXCLUDED_COUNTRIES = ["Hong Kong", "Vietnam"].freeze
+    VALID_PAYMENT_TYPES = ["cod", "prepaid"].freeze
 
     self.prefix = "/api/order/orders/"
     self.element_name = ""
@@ -30,10 +31,10 @@ module JanioAPI
       :consignee_city, :consignee_province, :consignee_email, :pickup_contact_name, :pickup_contact_number, :pickup_country, :pickup_address,
       :pickup_state, :pickup_city, :pickup_province, :pickup_date, :pickup_notes, presence: true
 
-    validates :pickup_country, :consignee_country, inclusion: SUPPORTED_COUNTRIES
+    validates :pickup_country, :consignee_country, inclusion: {in: SUPPORTED_COUNTRIES, message: "%{value} is not a supported country, supported countries are #{SUPPORTED_COUNTRIES.join(", ")}"}
     validates :pickup_postal, :consignee_postal, presence: true, unless: -> { POSTAL_EXCLUDED_COUNTRIES.include?(consignee_country) }
     validates :pickup_postal, presence: true, unless: -> { POSTAL_EXCLUDED_COUNTRIES.include?(pickup_country) }
-    validates :payment_type, inclusion: ["cod", "prepaid"]
+    validates :payment_type, inclusion: {in: VALID_PAYMENT_TYPES, message: "%{value} is not a valid payment type, valid payment types are #{VALID_PAYMENT_TYPES.join(", ")}"}
     validates :cod_amount_to_collect, presence: true, if: -> { payment_type == "cod" }
     validates :items, length: {minimum: 1, message: "are required. Please add at least one."}
 
