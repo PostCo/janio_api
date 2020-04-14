@@ -15,8 +15,3 @@ module JanioAPI
   class Error < StandardError; end
   # Your code goes here...
 end
-
-JanioAPI.configure do |config|
-  config.api_host = ENV["API_HOST"]
-  config.api_token = ENV["API_TOKEN"]
-end
