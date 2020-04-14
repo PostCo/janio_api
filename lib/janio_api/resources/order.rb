@@ -1,6 +1,26 @@
 module JanioAPI
   class Order < Base
-    self.prefix = "/api/order/"
+    self.prefix = "/api/order/orders/"
+    self.element_name = ""
+
+    validate :check_api_token
+
+    def check_api_token
+      errors.add(:base, "Please set the api_token in the initializer file") if JanioAPI.config.api_token.blank?
+    end
+
+    class Collection < ActiveResource::Collection
+      attr_accessor :count, :next, :previous
+
+      def initialize(parsed = {})
+        @count = parsed["count"]
+        @next = parsed["next"]
+        @previous = parsed["previous"]
+        @elements = parsed["results"]
+      end
+    end
+
+    self.collection_parser = Collection
 
     class << self
       def tracking_path
@@ -15,7 +35,9 @@ module JanioAPI
         scope = arguments.slice!(0)
         options = arguments.slice!(0) || {}
         options[:from] = "/api/order/order" unless options[:from]
+        options[:params] = {} unless options[:params]
         options[:params][:secret_key] = JanioAPI.config.api_token
+        options[:params][:with_items] = true unless options[:params][:with_items]
 
         case scope
         when :all
@@ -29,7 +51,9 @@ module JanioAPI
         end
       end
 
-      # check http://apidocs.janio.asia/track for more information
+      # Track one or more tracking nos
+      #
+      # Check http://apidocs.janio.asia/track for more information
       def track(tracking_nos)
         raise ArgumentError, "tracking_nos not an array" unless tracking_nos.is_a?(Array)
 
@@ -44,7 +68,9 @@ module JanioAPI
       end
     end
 
-    # check http://apidocs.janio.asia/track for more information
+    # Tracks the current order
+    #
+    # Check http://apidocs.janio.asia/track for more information
     def track
       body = {
         get_related_updates: true,
@@ -55,28 +81,59 @@ module JanioAPI
       self.class.format.decode(response.body)[0]
     end
 
+    def save(blocking: true)
+      run_callbacks :save do
+        new? ? create(blocking: blocking) : update(blocking: blocking)
+      end
+    end
+
     def create(blocking: true)
       reformat_before_save(blocking)
-      super
+      super()
+    rescue => e
+      reset_attributes_format
+      raise e
     end
 
     def update(blocking: true)
       reformat_before_save(blocking)
-      super
+      super()
+    rescue => e
+      reset_attributes_format
+      raise e
     end
 
+    # Reformat the attributes before POST to server
     def reformat_before_save(blocking)
+      attributes = @attributes.dup
+      @attributes.clear
       @attributes["secret_key"] = JanioAPI.config.api_token
       # set blocking until label generated
       @attributes["blocking"] = blocking
       # reformat attributes
-      @attributes["orders"] = [@attributes.except("secret_key", "blocking")]
+      @attributes["orders"] = [attributes]
+    end
+
+    def reset_attributes_format
+      attributes = @attributes.dup
+      @attributes.clear
+      load(attributes.delete("orders")[0])
     end
 
     def load_attributes_from_response(response)
       # reset the attributes structure before assign attributes that came back from server
-      load(@attributes.delete("orders"))
-      super(response)
+      reset_attributes_format
+
+      # save the response attributes
+      if response_code_allows_body?(response.code.to_i) &&
+          (response["Content-Length"].nil? || response["Content-Length"] != "0") &&
+          !response.body.nil? && response.body.strip.size > 0
+
+        attributes = self.class.format.decode(response.body)
+        attributes.merge!(attributes["orders"][0]).delete("orders")
+        load(attributes, false, true)
+        @persisted = true
+      end
     end
   end
 end
