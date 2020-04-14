@@ -3,6 +3,7 @@ PATH
   specs:
     janio_api (0.1.5)
       activeresource
+      zeitwerk
 
 GEM
   remote: https://rubygems.org/
