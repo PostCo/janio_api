@@ -1,7 +1,11 @@
 require "janio_api/version"
 require "active_resource"
-require_relative "zeitwerk_loader"
 require "dotenv/load"
+require_relative "zeitwerk_loader"
+
+# if || (defined?(Rails) && Rails::VERSION::MAJOR >= 6)
+# end
+
 module JanioAPI
   class << self
     attr_accessor :config

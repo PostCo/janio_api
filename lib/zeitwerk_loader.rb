@@ -1,14 +1,18 @@
 require "zeitwerk"
 
-$__janio_api_loader__ = Zeitwerk::Loader.for_gem
-$__janio_api_loader__.inflector.inflect(
+loader = Zeitwerk::Loader.for_gem
+loader.inflector.inflect(
   "janio_api" => "JanioAPI"
 )
-$__janio_api_loader__.push_dir("lib")
-$__janio_api_loader__.collapse("lib/janio_api/resources")
-$__janio_api_loader__.enable_reloading
+loader.push_dir("lib")
+loader.collapse("lib/janio_api/resources")
+loader.enable_reloading
 # loader.log!
-$__janio_api_loader__.setup
-def reload!
-  $__janio_api_loader__.reload
+loader.setup
+
+if ENV["JANIO_API_GEM_ENV"] == "development"
+  $__janio_api_loader__ = loader
+  def reload!
+    $__janio_api_loader__.reload
+  end
 end
