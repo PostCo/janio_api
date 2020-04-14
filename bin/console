@@ -5,6 +5,10 @@ require "janio_api"
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
+JanioAPI.configure do |config|
+  config.api_host = ENV["API_HOST"]
+  config.api_token = ENV["API_TOKEN"]
+end
 
 # (If you use this, don't forget to add pry to your Gemfile!)
 require "pry"

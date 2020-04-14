@@ -1,4 +1,3 @@
-require "fetcher"
 module JanioAPI
   class Connection < ActiveResource::Connection
     def request(method, path, *arguments)

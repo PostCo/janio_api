@@ -1,4 +1,6 @@
 module JanioAPI
+##
+# See http://apidocs.janio.asia/faq for parameters information
   class Order < Base
     self.prefix = "/api/order/orders/"
     self.element_name = ""
