@@ -1,16 +1,7 @@
 module JanioAPI
-##
-# See http://apidocs.janio.asia/faq for parameters information
+  ##
+  # See http://apidocs.janio.asia/faq for parameters information
   class Order < Base
-    self.prefix = "/api/order/orders/"
-    self.element_name = ""
-
-    validate :check_api_token
-
-    def check_api_token
-      errors.add(:base, "Please set the api_token in the initializer file") if JanioAPI.config.api_token.blank?
-    end
-
     class Collection < ActiveResource::Collection
       attr_accessor :count, :next, :previous
 
@@ -23,6 +14,31 @@ module JanioAPI
     end
 
     self.collection_parser = Collection
+
+    SUPPORTED_COUNTRIES = ["Australia", "Brunei", "China", "Hong Kong", "Indonesia", "Italy", "Japan", "Malaysia", "Philippines", "Saudi Arabia",
+                           "Singapore", "South Korea", "Spain", "Taiwan", "Thailand", "UAE", "UK", "US", "Vietnam"].freeze
+
+    POSTAL_EXCLUDED_COUNTRIES = ["Hong Kong", "Vietnam"].freeze
+
+    self.prefix = "/api/order/orders/"
+    self.element_name = ""
+
+    has_many :items, class_name: "JanioAPI::Item"
+
+    validates :service_id, :order_length, :order_width, :order_height, :order_weight,
+      :cod_amount_to_collect, :consignee_name, :consignee_number, :consignee_country, :consignee_address, :consignee_state,
+      :consignee_city, :consignee_province, :consignee_email, :pickup_contact_name, :pickup_contact_number, :pickup_country, :pickup_address,
+      :pickup_state, :pickup_city, :pickup_province, :pickup_date, :pickup_notes, presence: true
+
+    validates :pickup_country, :consignee_country, inclusion: SUPPORTED_COUNTRIES
+    validates :pickup_postal, :consignee_postal, presence: true, unless: -> { POSTAL_EXCLUDED_COUNTRIES.include?(consignee_country) }
+    validates :pickup_postal, presence: true, unless: -> { POSTAL_EXCLUDED_COUNTRIES.include?(pickup_country) }
+    validates :payment_type, inclusion: ["cod", "prepaid"]
+    validates :cod_amount_to_collect, presence: true, if: -> { payment_type == "cod" }
+    validates :items, length: {minimum: 1, message: "are required. Please add at least one."}
+
+    validate :check_api_token
+    validate :items_validation
 
     class << self
       def tracking_path
@@ -70,6 +86,42 @@ module JanioAPI
       end
     end
 
+    def initialize(attributes = {}, persisted = false)
+      default_attrs = {
+        service_id: 1,
+        tracking_no: nil,
+        shipper_order_id: nil,
+        order_length: 12,
+        order_width: 12,
+        order_height: 12,
+        order_weight: 1,
+        payment_type: nil,
+        cod_amount_to_collect: 0,
+        consignee_name: nil,
+        consignee_number: nil,
+        consignee_country: nil,
+        consignee_address: nil,
+        consignee_postal: nil,
+        consignee_state: nil,
+        consignee_city: nil,
+        consignee_province: nil,
+        consignee_email: nil,
+        pickup_contact_name: nil,
+        pickup_contact_number: nil,
+        pickup_country: nil,
+        pickup_address: nil,
+        pickup_postal: nil,
+        pickup_state: nil,
+        pickup_city: nil,
+        pickup_province: nil,
+        pickup_date: nil,
+        pickup_notes: nil,
+        items: nil
+      }
+      attributes = default_attrs.merge(attributes)
+      super
+    end
+
     # Tracks the current order
     #
     # Check http://apidocs.janio.asia/track for more information
@@ -86,6 +138,18 @@ module JanioAPI
     def save(blocking: true)
       run_callbacks :save do
         new? ? create(blocking: blocking) : update(blocking: blocking)
+      end
+    end
+
+    private
+
+    def check_api_token
+      errors.add(:base, "Please set the api_token in the initializer file") if JanioAPI.config.api_token.blank?
+    end
+
+    def items_validation
+      items&.each_with_index do |item, index|
+        item.errors.full_messages.each { |msg| errors.add("item_#{index}".to_sym, msg) } unless item.valid?
       end
     end
 
