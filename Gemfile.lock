@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    janio_api (0.1.0)
+    janio_api (0.1.1)
       activeresource
 
 GEM
