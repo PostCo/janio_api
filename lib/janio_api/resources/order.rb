@@ -37,8 +37,6 @@ module JanioAPI
     validates :payment_type, inclusion: {in: VALID_PAYMENT_TYPES, message: "%{value} is not a valid payment type, valid payment types are #{VALID_PAYMENT_TYPES.join(", ")}"}
     validates :cod_amount_to_collect, presence: true, if: -> { payment_type == "cod" }
     validates :items, length: {minimum: 1, message: "are required. Please add at least one."}
-
-    validate :check_credentials
     validate :items_validation
 
     class << self
@@ -143,11 +141,6 @@ module JanioAPI
     end
 
     private
-
-    def check_credentials
-      errors.add(:base, "Please set the api_token in the initializer file") if JanioAPI.config&.api_token&.blank?
-      errors.add(:base, "Please set the api_host in the initializer file") if JanioAPI.config&.api_host&.blank?
-    end
 
     def items_validation
       items&.each_with_index do |item, index|

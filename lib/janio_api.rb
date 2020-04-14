@@ -1,36 +1,16 @@
 require "janio_api/version"
 require "active_resource"
 require "dotenv/load"
-# require_relative "zeitwerk_loader"
-require "zeitwerk"
-
-loader = Zeitwerk::Loader.for_gem
-loader.inflector.inflect(
-  "janio_api" => "JanioAPI"
-)
-loader.collapse("./lib/janio_api/resources")
-loader.enable_reloading
-loader.tag = "janio_api_gem"
-# loader.log!
-loader.setup
-$__janio_api_loader__ = loader
-if ENV["JANIO_API_GEM_ENV"] == "development"
-  def reload!
-    $__janio_api_loader__.reload
-  end
-end
+require_relative "zeitwerk_loader" if ENV["JANIO_API_GEM_ENV"] == "development"
 
 module JanioAPI
-  class << self
-    attr_accessor :config
+  require "janio_api/configuration"
 
-    def configure
-      self.config ||= Configuration.new
-      yield(config)
-    end
+  require "janio_api/redirect_fetcher"
 
-    class Configuration
-      attr_accessor :api_host, :api_token
-    end
-  end
+  require "janio_api/connection"
+
+  require "janio_api/resources/base"
+  require "janio_api/resources/item"
+  require "janio_api/resources/order"
 end
