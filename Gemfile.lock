@@ -3,7 +3,6 @@ PATH
   specs:
     janio_api (0.1.10)
       activeresource
-      zeitwerk
 
 GEM
   remote: https://rubygems.org/
@@ -69,6 +68,7 @@ DEPENDENCIES
   pry-byebug
   rake (~> 12.3)
   rspec (~> 3.2)
+  zeitwerk
 
 BUNDLED WITH
    2.1.4
