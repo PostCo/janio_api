@@ -38,7 +38,7 @@ module JanioAPI
     validates :cod_amount_to_collect, presence: true, if: -> { payment_type == "cod" }
     validates :items, length: {minimum: 1, message: "are required. Please add at least one."}
 
-    validate :check_api_token
+    validate :check_credentials
     validate :items_validation
 
     class << self
@@ -144,8 +144,9 @@ module JanioAPI
 
     private
 
-    def check_api_token
-      errors.add(:base, "Please set the api_token in the initializer file") if JanioAPI.config.api_token.blank?
+    def check_credentials
+      errors.add(:base, "Please set the api_token in the initializer file") if JanioAPI.config&.api_token&.blank?
+      errors.add(:base, "Please set the api_host in the initializer file") if JanioAPI.config&.api_host&.blank?
     end
 
     def items_validation

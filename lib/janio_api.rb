@@ -3,9 +3,6 @@ require "active_resource"
 require "dotenv/load"
 require_relative "zeitwerk_loader"
 
-# if || (defined?(Rails) && Rails::VERSION::MAJOR >= 6)
-# end
-
 module JanioAPI
   class << self
     attr_accessor :config
@@ -14,8 +11,9 @@ module JanioAPI
       self.config ||= Configuration.new
       yield(config)
     end
-  end
 
-  class Error < StandardError; end
-  # Your code goes here...
+    class Configuration
+      attr_accessor :api_host, :api_token
+    end
+  end
 end
