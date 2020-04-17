@@ -1,7 +1,7 @@
 RSpec.describe JanioAPI do
   let(:order) do
     JanioAPI::Order.new({
-      service_id: 1,
+      service_id: nil,
       tracking_no: "TRACKINGNUMBERHTH333ASDA1",
       shipper_order_id: nil,
       order_length: 12,
@@ -27,16 +27,16 @@ RSpec.describe JanioAPI do
       pickup_state: "Singapore State",
       pickup_city: nil,
       pickup_province: nil,
-      pickup_date: nil,
+      pickup_date: "#{(Time.now + 1.year).strftime("%Y")}-2-23",
       pickup_notes: nil,
       items: [
         {
-          item_desc: "Blue Male T-Shirt",
-          item_quantity: 2,
-          item_product_id: "PROD123",
-          item_sku: "ITEMSKU123",
-          item_category: "Fashion Apparel",
-          item_price_value: 23.5,
+      item_desc: "Blue Male T-Shirt",
+      item_quantity: 2,
+      item_product_id: "PROD123",
+      item_sku: "ITEMSKU123",
+      item_category: "Fashion Apparel",
+      item_price_value: 23.5,
           item_price_currency: "IDR"
         }
       ]
