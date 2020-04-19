@@ -18,7 +18,7 @@ module JanioAPI
     SUPPORTED_PICKUP_COUNTRIES = ["Singapore", "China", "Hong Kong", "Indonesia", "Malaysia", "Philippines", "Thailand"].freeze
     SUPPORTED_CONSIGNEE_COUNTRIES = ["Indonesia", "Singapore", "Thailand", "Malaysia", "Philippines", "China", "Hong Kong", "Taiwan", "Brunei", "South Korea", "Japan", "Vietnam"].freeze
 
-    POSTAL_EXCLUDED_COUNTRIES = ["Hong Kong", "Vietnam"].freeze
+    POSTAL_EXCLUDED_COUNTRIES = ["Hong Kong", "Vietnam", "Brunei"].freeze
     VALID_PAYMENT_TYPES = ["cod", "prepaid"].freeze
 
     SERVICE_ID_MAP = [

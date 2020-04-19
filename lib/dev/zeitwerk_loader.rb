@@ -5,7 +5,7 @@ loader.inflector.inflect(
   "janio_api" => "JanioAPI"
 )
 loader.collapse("./lib/janio_api/resources")
-loader.ignore("#{__dir__}/dev_config.rb")
+loader.ignore("#{__dir__}/config.rb")
 loader.enable_reloading
 # loader.log!
 loader.setup
