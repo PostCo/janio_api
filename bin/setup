@@ -8,10 +8,8 @@ bundle install
 # Do any other automated setup that you need to do here
 
 filename=".env"
-if [ ! -f $filename ]
-then
+if [ ! -f $filename ]; then
     touch $filename
-    echo "API_HOST=https://janio-api-int.herokuapp.com" >> $filename
-    echo "API_TOKEN=" >> $filename
-    echo "JANIO_API_GEM_ENV=development" >> $filename
+    echo "API_HOST=https://janio-api-int.herokuapp.com" >>$filename
+    echo "API_TOKEN=" >>$filename
 fi

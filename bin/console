@@ -1,14 +1,18 @@
 #!/usr/bin/env ruby
 
 require "bundler/setup"
+require "dotenv/load"
+require "dev/zeitwerk_loader"
+require "dev/config"
 require "janio_api"
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
-require "dev/config"
+set_config
 
 # (If you use this, don't forget to add pry to your Gemfile!)
 require "pry"
+require "pry-byebug"
 Pry.start
 
 # require "irb"

@@ -1,11 +1,15 @@
 require "zeitwerk"
+require_relative "config"
 
 loader = Zeitwerk::Loader.for_gem
 loader.inflector.inflect(
   "janio_api" => "JanioAPI"
 )
+loader.push_dir("./lib")
 loader.collapse("./lib/janio_api/resources")
 loader.ignore("#{__dir__}/config.rb")
+loader.ignore("./lib/janio_api/exceptions.rb")
+loader.ignore("./lib/janio_api/services_list.rb")
 loader.enable_reloading
 # loader.log!
 loader.setup

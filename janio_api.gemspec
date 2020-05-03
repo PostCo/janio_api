@@ -27,9 +27,12 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "activeresource"
+  spec.add_dependency "countries"
+  spec.add_dependency "phonelib"
 
   spec.add_development_dependency "rspec", "~> 3.2"
   spec.add_development_dependency "dotenv"
   spec.add_development_dependency "pry-byebug"
   spec.add_development_dependency "pry"
+  spec.add_development_dependency "guard-rspec"
 end

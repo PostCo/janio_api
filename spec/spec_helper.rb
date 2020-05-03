@@ -1,4 +1,3 @@
-require "bundler/setup"
 require "janio_api"
 
 RSpec.configure do |config|
@@ -11,9 +10,4 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
-end
-
-JanioAPI.configure do |config|
-  config.api_host = ENV["API_HOST"]
-  config.api_token = ENV["API_TOKEN"]
 end

@@ -15,69 +15,70 @@ module JanioAPI
 
     self.collection_parser = Collection
 
-    SUPPORTED_PICKUP_COUNTRIES = ["Singapore", "China", "Hong Kong", "Indonesia", "Malaysia", "Philippines", "Thailand"].freeze
-    SUPPORTED_CONSIGNEE_COUNTRIES = ["Indonesia", "Singapore", "Thailand", "Malaysia", "Philippines", "China", "Hong Kong", "Taiwan", "Brunei", "South Korea", "Japan", "Vietnam"].freeze
+    SUPPORTED_PICKUP_COUNTRIES = SERVICES.map { |s| s[:pickup_country] }.uniq.freeze
+    SUPPORTED_CONSIGNEE_COUNTRIES = SERVICES.map { |s| s[:consignee_country] }.uniq.freeze
 
     POSTAL_EXCLUDED_COUNTRIES = ["Hong Kong", "Vietnam", "Brunei"].freeze
     VALID_PAYMENT_TYPES = ["cod", "prepaid"].freeze
 
-    SERVICE_ID_MAP = [
-      {id: 1, from: "Singapore", to: "Indonesia"},
-      {id: 6, from: "China", to: "Indonesia"},
-      {id: 5, from: "China", to: "Singapore"},
-      {id: 7, from: "China", to: "Thailand"},
-      {id: 11, from: "Hong Kong", to: "Indonesia"},
-      {id: 37, from: "Hong Kong", to: "Malaysia"},
-      {id: 33, from: "Hong Kong", to: "Philippines"},
-      {id: 13, from: "Hong Kong", to: "Singapore"},
-      {id: 12, from: "Hong Kong", to: "Thailand"},
-      {id: 41, from: "Indonesia", to: "China"},
-      {id: 41, from: "Indonesia", to: "Hong Kong"},
-      {id: 41, from: "Indonesia", to: "Taiwan"},
-      {id: 41, from: "Indonesia", to: "Brunei"},
-      {id: 41, from: "Indonesia", to: "Philippines"},
-      {id: 41, from: "Indonesia", to: "Malaysia"},
-      {id: 3, from: "Indonesia", to: "Indonesia"},
-      {id: 47, from: "Indonesia", to: "Philippines"},
-      {id: 54, from: "Indonesia", to: "Philippines"},
-      {id: 20, from: "Indonesia", to: "Singapore"},
-      {id: 48, from: "Indonesia", to: "Singapore"},
-      {id: 22, from: "Indonesia", to: "South Korea"},
-      {id: 22, from: "Indonesia", to: "Japan"},
-      {id: 22, from: "Indonesia", to: "Vietnam"},
-      {id: 4, from: "Malaysia", to: "Indonesia"},
-      {id: 40, from: "Malaysia", to: "Malaysia"},
-      {id: 36, from: "Philippines", to: "Philippines"},
-      {id: 2, from: "Singapore", to: "China"},
-      {id: 2, from: "Singapore", to: "Taiwan"},
-      {id: 2, from: "Singapore", to: "South Korea"},
-      {id: 2, from: "Singapore", to: "Brunei"},
-      {id: 2, from: "Singapore", to: "Vietnam"},
-      {id: 2, from: "Singapore", to: "Hong Kong"},
-      {id: 2, from: "Singapore", to: "Japan"},
-      {id: 26, from: "Singapore", to: "Malaysia"},
-      {id: 10, from: "Singapore", to: "Singapore"},
-      {id: 17, from: "Singapore", to: "Thailand"},
-      {id: 34, from: "Thailand", to: "Indonesia"},
-      {id: 35, from: "Thailand", to: "Singapore"}
-    ].freeze
-
+    DEFAULT_ATTRS = {
+      service_id: 1,
+      tracking_no: nil,
+      shipper_order_id: nil,
+      order_length: 12,
+      order_width: 12,
+      order_height: 12,
+      order_weight: 1,
+      payment_type: nil,
+      cod_amount_to_collect: 0,
+      consignee_name: nil,
+      consignee_number: nil,
+      consignee_country: nil,
+      consignee_address: nil,
+      consignee_postal: nil,
+      consignee_state: nil,
+      consignee_city: nil,
+      consignee_province: nil,
+      consignee_email: nil,
+      pickup_contact_name: nil,
+      pickup_contact_number: nil,
+      pickup_country: nil,
+      pickup_address: nil,
+      pickup_postal: nil,
+      pickup_state: nil,
+      pickup_city: nil,
+      pickup_province: nil,
+      pickup_date: nil,
+      pickup_notes: nil,
+      items: nil
+    }
     self.prefix = "/api/order/orders/"
     self.element_name = ""
 
     has_many :items, class_name: "JanioAPI::Item"
 
-    validates :service_id, :order_length, :order_width, :order_height, :order_weight, :cod_amount_to_collect, :consignee_name, :consignee_number, :consignee_country,
-      :consignee_address, :consignee_state, :consignee_email, :pickup_contact_name, :pickup_contact_number, :pickup_country, :pickup_address,
-      :pickup_state, :pickup_date, presence: true
+    validates :service_id, :order_length, :order_width, :order_height, :order_weight,
+      :consignee_name, :consignee_country, :consignee_address, :consignee_state, :consignee_email,
+      :pickup_contact_name, :pickup_country, :pickup_address, :pickup_state, :pickup_date, presence: true
 
-    validates :pickup_country, inclusion: {in: SUPPORTED_PICKUP_COUNTRIES, message: "%{value} is not a supported pickup country, supported countries are #{SUPPORTED_PICKUP_COUNTRIES.join(", ")}"}
-    validates :consignee_country, inclusion: {in: SUPPORTED_CONSIGNEE_COUNTRIES, message: "%{value} is not a supported consignee country, supported countries are #{SUPPORTED_CONSIGNEE_COUNTRIES.join(", ")}"}
-    validates :pickup_postal, :consignee_postal, presence: true, unless: -> { POSTAL_EXCLUDED_COUNTRIES.include?(consignee_country) }
+    validates :pickup_country, inclusion: {
+      in: SUPPORTED_PICKUP_COUNTRIES,
+      message: "%{value} is not a supported pickup country, supported countries are #{SUPPORTED_PICKUP_COUNTRIES.join(", ")}"
+    }
+    validates :consignee_country, inclusion: {
+      in: SUPPORTED_CONSIGNEE_COUNTRIES,
+      message: "%{value} is not a supported consignee country, supported countries are #{SUPPORTED_CONSIGNEE_COUNTRIES.join(", ")}"
+    }
+    validates :consignee_postal, presence: true, unless: -> { POSTAL_EXCLUDED_COUNTRIES.include?(consignee_country) }
     validates :pickup_postal, presence: true, unless: -> { POSTAL_EXCLUDED_COUNTRIES.include?(pickup_country) }
-    validates :payment_type, inclusion: {in: VALID_PAYMENT_TYPES, message: "%{value} is not a valid payment type, valid payment types are #{VALID_PAYMENT_TYPES.join(", ")}"}
+    validates :payment_type, inclusion: {
+      in: VALID_PAYMENT_TYPES,
+      message: "%{value} is not a valid payment type, valid payment types are #{VALID_PAYMENT_TYPES.join(", ")}"
+    }
     validates :cod_amount_to_collect, presence: true, if: -> { payment_type == "cod" }
     validates :items, length: {minimum: 1, message: "are required. Please add at least one."}
+    validate :pickup_contact_number_country_matched?
+    validate :consignee_number_country_matched?
     validate :items_validation
     validate :route_supported?
 
@@ -95,8 +96,8 @@ module JanioAPI
         options = arguments.slice!(0) || {}
         options[:from] = "/api/order/order" unless options[:from]
         options[:params] = {} unless options[:params]
-        options[:params][:secret_key] = JanioAPI.config.api_token
         options[:params][:with_items] = true unless options[:params][:with_items]
+        options[:params][:secret_key] = JanioAPI.config.api_token
 
         case scope
         when :all
@@ -128,48 +129,22 @@ module JanioAPI
     end
 
     def initialize(attributes = {}, persisted = false)
-      default_attrs = {
-        service_id: 1,
-        tracking_no: nil,
-        shipper_order_id: nil,
-        order_length: 12,
-        order_width: 12,
-        order_height: 12,
-        order_weight: 1,
-        payment_type: nil,
-        cod_amount_to_collect: 0,
-        consignee_name: nil,
-        consignee_number: nil,
-        consignee_country: nil,
-        consignee_address: nil,
-        consignee_postal: nil,
-        consignee_state: nil,
-        consignee_city: nil,
-        consignee_province: nil,
-        consignee_email: nil,
-        pickup_contact_name: nil,
-        pickup_contact_number: nil,
-        pickup_country: nil,
-        pickup_address: nil,
-        pickup_postal: nil,
-        pickup_state: nil,
-        pickup_city: nil,
-        pickup_province: nil,
-        pickup_date: nil,
-        pickup_notes: nil,
-        items: nil
-      }
-      attributes = default_attrs.merge(attributes)
+      attributes = DEFAULT_ATTRS.merge(attributes)
       super
       set_service_id
     end
 
-    def get_service_id
-      SERVICE_ID_MAP.find { |route| route[:from] == pickup_country && route[:to] == consignee_country }&.dig(:id)
+    def get_service_id(service_category = "pickup")
+      # only check with services offering pickup by default
+      SERVICES.find do |s|
+        s[:pickup_country] == pickup_country &&
+          s[:consignee_country] == consignee_country &&
+          s[:service_category] == service_category
+      end&.dig(:id)
     end
 
-    def set_service_id
-      @attributes[:service_id] = get_service_id
+    def set_service_id(service_category = "pickup")
+      @attributes[:service_id] = get_service_id(service_category)
     end
 
     # Tracks the current order
@@ -192,6 +167,26 @@ module JanioAPI
     end
 
     private
+
+    def pickup_contact_number_country_matched?
+      country_code = ISO3166::Country.find_country_by_name(pickup_country)&.alpha2
+      if Phonelib.invalid_for_country? pickup_contact_number, country_code
+        errors.add(
+          :pickup_contact_number,
+          "is invalid, please make sure the phone's country code matches the pickup address's country"
+        )
+      end
+    end
+
+    def consignee_number_country_matched?
+      country_code = ISO3166::Country.find_country_by_name(consignee_country)&.alpha2
+      if Phonelib.invalid_for_country? consignee_number, country_code
+        errors.add(
+          :consignee_number,
+          "is invalid, please make sure the phone's country code matches the consignee address's country"
+        )
+      end
+    end
 
     def route_supported?
       unless set_service_id

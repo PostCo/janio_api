@@ -1,9 +1,11 @@
 require "janio_api/version"
 require "active_resource"
-require "dotenv/load"
-require_relative "dev/zeitwerk_loader" if ENV["JANIO_API_GEM_ENV"] == "development"
+
 module JanioAPI
-  require "janio_api/exceptions"
+  require "phonelib"
+  require "countries"
+
+  require "janio_api/services_list"
 
   require "janio_api/configuration"
 
