@@ -1,5 +1,7 @@
 # JanioAPI
 
+[![Gem Version](https://badge.fury.io/rb/janio_api.svg)](https://badge.fury.io/rb/janio_api)
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -22,10 +24,18 @@ Or install it yourself as:
 
 1. Create a file under the `initializers` folder.
 2. Set the `api_host` and `api_token` as following sample:
+
    ```ruby
    JanioAPI.configure do |config|
      config.api_host = ENV["API_HOST"]
+
      config.api_token = ENV["API_TOKEN"]
+     # or
+     # api_tokens will take over api_token if set in config
+     config.api_tokens = {
+       MY: ENV["MALAYSIA_JANIO_API_TOKEN"],
+       SG: ENV["SINGAPORE_JANIO_API_TOKEN"],
+     }
    end
    ```
 
