@@ -31,7 +31,7 @@ Or install it yourself as:
 
      config.api_token = ENV["API_TOKEN"]
      # or
-     # api_tokens will take over api_token if set in config
+     # api_tokens will take higher precedence than api_token
      config.api_tokens = {
        MY: ENV["MALAYSIA_JANIO_API_TOKEN"],
        SG: ENV["SINGAPORE_JANIO_API_TOKEN"],

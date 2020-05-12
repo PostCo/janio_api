@@ -6,8 +6,8 @@ RSpec.describe JanioAPI do
   end
 
   describe "JanioAPI::Order" do
-    let(:order) do
-      JanioAPI::Order.new({
+    let(:attributes) do
+      {
         service_id: nil,
         tracking_no: "TRACKINGNUMBERHTH333ASDA1",
         shipper_order_id: nil,
@@ -45,7 +45,10 @@ RSpec.describe JanioAPI do
            item_price_value: 23.5,
            item_price_currency: "IDR"}
         ]
-      })
+      }
+    end
+    let(:order) do
+      JanioAPI::Order.new(attributes)
     end
 
     it "auto set service id based on pickup and consignee country" do
@@ -223,6 +226,38 @@ RSpec.describe JanioAPI do
             order.valid?
           end
           it { expect(order.errors.messages.keys).to include(:route) }
+        end
+      end
+    end
+
+    describe "private #reformat_before_save" do
+      context "by default" do
+        before { order.send(:reformat_before_save, true) }
+        it do
+          expect(order.orders.first.keys.map(&:to_sym)).to eq(attributes.keys)
+        end
+        it "secret key eq JanioAPI.config.api_token" do
+          expect(order.secret_key).to eq JanioAPI.config.api_token
+        end
+        it { expect(order.blocking).to be true }
+      end
+
+      context "with api_tokens set" do
+        before do
+          JanioAPI.config.api_tokens = {
+            MY: "janio malaysia token",
+            SG: "janio singapore token"
+          }
+          order.send(:reformat_before_save, true)
+        end
+
+        it "retrieve token based on pickup_country(Singapore) from api_tokens, instead of api_token" do
+          expect(order.secret_key) == "janio singapore token"
+        end
+
+        it "retrieve token based on pickup_country(Malaysia)" do
+          order.pickup_country = "Malaysia"
+          expect(order.secret_key) == "janio malaysia token"
         end
       end
     end
