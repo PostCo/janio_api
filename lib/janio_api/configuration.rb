@@ -1,6 +1,6 @@
 module JanioAPI
   class Configuration
-    attr_accessor :api_host, :api_token
+    attr_accessor :api_host, :api_token, :api_tokens
   end
 
   def self.config

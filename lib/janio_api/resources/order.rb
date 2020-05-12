@@ -220,11 +220,22 @@ module JanioAPI
     def reformat_before_save(blocking)
       attributes = @attributes.dup
       @attributes.clear
-      @attributes[:secret_key] = JanioAPI.config.api_token
+      @attributes[:secret_key] = retrieve_api_token
       # set blocking until label generated
       @attributes[:blocking] = blocking
       # reformat attributes
       @attributes[:orders] = [attributes]
+    end
+
+    def retrieve_api_token
+      if JanioAPI.config.api_tokens
+        country_code_sym = ISO3166::Country.find_country_by_name(@attributes[:pickup_country])&.alpha2&.to_sym
+        JanioAPI.config.api_tokens[country_code_sym]
+      elsif JanioAPI.config.api_token
+        JanioAPI.config.api_token
+      else
+        throw ArgumentError.new("JanioAPI api_token is missing, please set it in the config.")
+      end
     end
 
     def reset_attributes_format
