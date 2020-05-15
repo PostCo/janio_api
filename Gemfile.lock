@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    janio_api (0.3.3)
+    janio_api (0.3.4)
       activeresource
       countries
       phonelib
