@@ -220,16 +220,16 @@ module JanioAPI
     def reformat_before_save(blocking)
       attributes = @attributes.dup
       @attributes.clear
-      @attributes[:secret_key] = retrieve_api_token
+      @attributes[:secret_key] = retrieve_api_token(attributes[:pickup_country])
       # set blocking until label generated
       @attributes[:blocking] = blocking
       # reformat attributes
       @attributes[:orders] = [attributes]
     end
 
-    def retrieve_api_token
+    def retrieve_api_token(country)
       if JanioAPI.config.api_tokens
-        country_code_sym = ISO3166::Country.find_country_by_name(@attributes[:pickup_country])&.alpha2&.to_sym
+        country_code_sym = ISO3166::Country.find_country_by_name(country)&.alpha2&.to_sym
         JanioAPI.config.api_tokens[country_code_sym]
       elsif JanioAPI.config.api_token
         JanioAPI.config.api_token
