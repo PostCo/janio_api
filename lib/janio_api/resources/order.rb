@@ -17,6 +17,7 @@ module JanioAPI
 
     SUPPORTED_PICKUP_COUNTRIES = SERVICES.map { |s| s[:pickup_country] }.uniq.freeze
     SUPPORTED_CONSIGNEE_COUNTRIES = SERVICES.map { |s| s[:consignee_country] }.uniq.freeze
+    PICKUP_DATE_ACCEPTED_COUNTRIES = ["Singapore"]
 
     POSTAL_EXCLUDED_COUNTRIES = ["Hong Kong", "Vietnam", "Brunei"].freeze
     VALID_PAYMENT_TYPES = ["cod", "prepaid"].freeze
@@ -59,7 +60,10 @@ module JanioAPI
 
     validates :service_id, :order_length, :order_width, :order_height, :order_weight,
       :consignee_name, :consignee_country, :consignee_address, :consignee_state, :consignee_email,
-      :pickup_contact_name, :pickup_country, :pickup_address, :pickup_state, :pickup_date, presence: true
+      :pickup_contact_name, :pickup_country, :pickup_address, :pickup_state, presence: true
+
+    validates :pickup_date, presence: true, if: -> { PICKUP_DATE_ACCEPTED_COUNTRIES.include?(pickup_country) }
+    validates :pickup_date, absence: true, if: -> { !PICKUP_DATE_ACCEPTED_COUNTRIES.include?(pickup_country) }
 
     validates :pickup_country, inclusion: {
       in: SUPPORTED_PICKUP_COUNTRIES,
@@ -129,9 +133,20 @@ module JanioAPI
     end
 
     def initialize(attributes = {}, persisted = false)
+      if attributes[:pickup_date].is_a?(ActiveSupport::TimeWithZone)
+        attributes[:pickup_date] = attributes[:pickup_date].strftime("%Y-%-m-%-d")
+      end
       attributes = DEFAULT_ATTRS.merge(attributes)
       super
       set_service_id
+    end
+
+    def pickup_date=(date)
+      @attributes[:pickup_date] = if date.is_a?(ActiveSupport::TimeWithZone)
+        date.strftime("%Y-%-m-%-d")
+      else
+        date
+      end
     end
 
     def get_service_id(service_category = "pickup")
@@ -234,7 +249,7 @@ module JanioAPI
       elsif JanioAPI.config.api_token
         JanioAPI.config.api_token
       else
-        throw ArgumentError.new("JanioAPI api_token is missing, please set it in the config.")
+        raise ArgumentError, "JanioAPI api_token is missing, please set it in the config."
       end
     end
 

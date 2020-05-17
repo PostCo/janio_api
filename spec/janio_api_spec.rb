@@ -63,13 +63,40 @@ RSpec.describe JanioAPI do
       describe "presences" do
         attrs = [:service_id, :order_length, :order_width, :order_height, :order_weight, :consignee_name, :consignee_country,
                  :consignee_address, :consignee_state, :consignee_email, :pickup_contact_name, :pickup_country, :pickup_address,
-                 :pickup_state, :pickup_date]
+                 :pickup_state]
 
         attrs.each do |attr|
           before { order.send("#{attr}=", nil) }
           it do
             order.valid?
             expect(order.errors.messages.keys).to include(attr.to_s.to_sym)
+          end
+        end
+
+        context "pickup_date" do
+          it do
+            order.pickup_country = "Singapore"
+            order.pickup_date = nil
+            order.valid?
+            expect(order.errors.messages.keys).to include(:pickup_date)
+          end
+          it do
+            order.pickup_country = "Singapore"
+            order.pickup_date = Time.now
+            order.valid?
+            expect(order.errors.messages.keys).not_to include(:pickup_date)
+          end
+          it do
+            order.pickup_country = "Malaysia"
+            order.pickup_date = Time.now
+            order.valid?
+            expect(order.errors.messages.keys).to include(:pickup_date)
+          end
+          it do
+            order.pickup_country = "Malaysia"
+            order.pickup_date = nil
+            order.valid?
+            expect(order.errors.messages.keys).not_to include(:pickup_date)
           end
         end
       end
@@ -240,6 +267,19 @@ RSpec.describe JanioAPI do
           expect(order.secret_key).to eq JanioAPI.config.api_token
         end
         it { expect(order.blocking).to be true }
+      end
+
+      context "no api_tokens set" do
+        before do
+          JanioAPI.config.api_token = nil
+          JanioAPI.config.api_tokens = nil
+        end
+
+        it do
+          order.send(:reformat_before_save, true)
+        rescue ArgumentError => e
+          expect(e.message).to eq("JanioAPI api_token is missing, please set it in the config.")
+        end
       end
 
       context "with api_tokens set" do
