@@ -6,6 +6,7 @@ module JanioAPI
   require "countries"
 
   require "janio_api/services_list"
+  require "janio_api/postal_code_regex_list"
 
   require "janio_api/configuration"
 

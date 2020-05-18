@@ -64,7 +64,6 @@ module JanioAPI
 
     validates :pickup_date, presence: true, if: -> { PICKUP_DATE_ACCEPTED_COUNTRIES.include?(pickup_country) }
     validates :pickup_date, absence: true, if: -> { !PICKUP_DATE_ACCEPTED_COUNTRIES.include?(pickup_country) }
-
     validates :pickup_country, inclusion: {
       in: SUPPORTED_PICKUP_COUNTRIES,
       message: "%{value} is not a supported pickup country, supported countries are #{SUPPORTED_PICKUP_COUNTRIES.join(", ")}"
@@ -73,14 +72,14 @@ module JanioAPI
       in: SUPPORTED_CONSIGNEE_COUNTRIES,
       message: "%{value} is not a supported consignee country, supported countries are #{SUPPORTED_CONSIGNEE_COUNTRIES.join(", ")}"
     }
-    validates :consignee_postal, presence: true, unless: -> { POSTAL_EXCLUDED_COUNTRIES.include?(consignee_country) }
-    validates :pickup_postal, presence: true, unless: -> { POSTAL_EXCLUDED_COUNTRIES.include?(pickup_country) }
     validates :payment_type, inclusion: {
       in: VALID_PAYMENT_TYPES,
       message: "%{value} is not a valid payment type, valid payment types are #{VALID_PAYMENT_TYPES.join(", ")}"
     }
     validates :cod_amount_to_collect, presence: true, if: -> { payment_type == "cod" }
     validates :items, length: {minimum: 1, message: "are required. Please add at least one."}
+    validate :pickup_postal_valid?, unless: -> { POSTAL_EXCLUDED_COUNTRIES.include?(pickup_country) }
+    validate :consignee_postal_valid?, unless: -> { POSTAL_EXCLUDED_COUNTRIES.include?(consignee_country) }
     validate :pickup_contact_number_country_matched?
     validate :consignee_number_country_matched?
     validate :items_validation
@@ -183,22 +182,42 @@ module JanioAPI
 
     private
 
+    def pickup_country_code
+      ISO3166::Country.find_country_by_name(pickup_country)&.alpha2
+    end
+
+    def consignee_country_code
+      ISO3166::Country.find_country_by_name(consignee_country)&.alpha2
+    end
+
+    def pickup_postal_valid?
+      if pickup_country_code
+        regex = Regexp.new(POSTAL_CODE_REGEX[pickup_country_code.to_sym])
+        errors.add(:pickup_postal, "is invalid, must match #{regex.inspect}") unless regex.match(pickup_postal)
+      end
+    end
+
+    def consignee_postal_valid?
+      if consignee_country_code && POSTAL_CODE_REGEX[consignee_country_code.to_sym]
+        regex = Regexp.new(POSTAL_CODE_REGEX[consignee_country_code.to_sym])
+        errors.add(:consignee_postal, "is invalid, must match #{regex.inspect}") unless regex.match(consignee_postal)
+      end
+    end
+
     def pickup_contact_number_country_matched?
-      country_code = ISO3166::Country.find_country_by_name(pickup_country)&.alpha2
-      if Phonelib.invalid_for_country? pickup_contact_number, country_code
+      if Phonelib.invalid_for_country?(pickup_contact_number, pickup_country_code)
         errors.add(
           :pickup_contact_number,
-          "is invalid, please make sure the phone's country code matches the pickup address's country"
+          "is invalid, please make sure the phone is valid and phone's country code matches the pickup address's country"
         )
       end
     end
 
     def consignee_number_country_matched?
-      country_code = ISO3166::Country.find_country_by_name(consignee_country)&.alpha2
-      if Phonelib.invalid_for_country? consignee_number, country_code
+      if Phonelib.invalid_for_country?(consignee_number, consignee_country_code)
         errors.add(
           :consignee_number,
-          "is invalid, please make sure the phone's country code matches the consignee address's country"
+          "is invalid, please make sure the phone is valid and phone's country code matches the consignee address's country"
         )
       end
     end

@@ -125,36 +125,39 @@ RSpec.describe JanioAPI do
         include_examples "country inclusion", :consignee_country
       end
 
-      shared_examples "postal presence" do |postal_type, country_type|
+      shared_examples "postal regex" do |postal_type, country_type|
         before do
           order.send("#{postal_type}=", postal)
           order.send("#{country_type}=", country.to_s) if defined?(country)
           order.valid?
         end
 
-        context "with empty postal" do
-          let(:postal) { "" }
-          it { expect(order.errors.messages.keys).to include(postal_type) }
-        end
-
-        context "with non-empty postal" do
-          let(:postal) { "12435" }
+        context "with correct postal" do
+          let(:country) { "Malaysia" }
+          let(:postal) { "50000" }
           it { expect(order.errors.messages.keys).not_to include(postal_type) }
         end
 
         context "with empty postal for Vietnam" do
-          let(:postal) { "" }
           let(:country) { "Vietnam" }
+          let(:postal) { "" }
           it { expect(order.errors.messages.keys).not_to include(postal_type) }
+        end
+
+        context "with incorrect postal" do
+          let(:country) { "Malaysia" }
+          let(:postal) { "500" }
+          it { expect(order.errors.messages.keys).to include(postal_type) }
+          it { expect(order.errors.messages[postal_type]).to include(/^is invalid, must match .*$/) }
         end
       end
 
-      describe "pickup_postal presence" do
-        include_examples "postal presence", :pickup_postal, :pickup_country
+      describe "pickup_postal regex" do
+        include_examples "postal regex", :pickup_postal, :pickup_country
       end
 
-      describe "consignee_postal presence" do
-        include_examples "postal presence", :consignee_postal, :consignee_country
+      describe "consignee_postal regex" do
+        include_examples "postal regex", :consignee_postal, :consignee_country
       end
 
       describe "payment_type inclusion" do
