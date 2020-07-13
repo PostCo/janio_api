@@ -117,15 +117,27 @@ module JanioAPI
       # Track one or more tracking nos
       #
       # Check http://apidocs.janio.asia/track for more information
-      def track(tracking_nos)
-        raise ArgumentError, "tracking_nos not an array" unless tracking_nos.is_a?(Array)
+      def track(tracking_nos, secret_key = nil)
+        raise ArgumentError, "tracking_nos must be an array" unless tracking_nos.is_a?(Array)
 
         body = {
           get_related_updates: true,
-          flatten_data: true,
+          flatten_data: false,
           tracking_nos: tracking_nos
         }
-        response = connection.post(tracking_path, body.to_json, headers)
+
+        headers[:secret_key] = secret_key unless secret_key.nil?
+
+        raise ArgumentError, "secret_key can't be blank" unless headers[:secret_key].present?
+
+        retries = 0
+        begin
+          retries += 1
+          response = connection.post(tracking_path, body.to_json, headers)
+        rescue ActiveResource::ConnectionError => e
+          retry unless retries <= 5
+          raise e
+        end
 
         self.format.decode(response.body)
       end
@@ -141,7 +153,7 @@ module JanioAPI
     end
 
     def pickup_date=(date)
-      @attributes[:pickup_date] = if date.is_a?(ActiveSupport::TimeWithZone)
+      @attributes[:pickup_date] = if date.is_a?(ActiveSupport::TimeWithZone) || date.is_a?(Time)
         date.strftime("%Y-%-m-%-d")
       else
         date
@@ -170,6 +182,7 @@ module JanioAPI
         flatten_data: true,
         tracking_nos: [@attributes[:tracking_no]]
       }
+
       response = connection.post(self.class.tracking_path, body.to_json, self.class.headers)
       self.class.format.decode(response.body)[0]
     end
@@ -268,7 +281,7 @@ module JanioAPI
       elsif JanioAPI.config.api_token
         JanioAPI.config.api_token
       else
-        raise ArgumentError, "JanioAPI api_token is missing, please set it in the config."
+        raise ArgumentError, "JanioAPI api_token/api_tokens is missing, please set it in the config."
       end
     end
 

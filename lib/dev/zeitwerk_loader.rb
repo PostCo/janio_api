@@ -10,7 +10,7 @@ loader.collapse("./lib/janio_api/resources")
 loader.ignore("#{__dir__}/config.rb")
 loader.ignore("./lib/janio_api/exceptions.rb")
 loader.ignore("./lib/janio_api/services_list.rb")
-loader.ignore("./lib/janio_api/postal_code_regex.rb")
+loader.ignore("./lib/janio_api/postal_code_regex_list.rb")
 loader.enable_reloading
 # loader.log!
 loader.setup

@@ -9,7 +9,7 @@ RSpec.describe JanioAPI do
     let(:attributes) do
       {
         service_id: nil,
-        tracking_no: "TRACKINGNUMBERHTH333ASDA1",
+        tracking_no: "TRACKINGNUMBER12345",
         shipper_order_id: nil,
         order_length: 12,
         order_width: 12,
@@ -34,7 +34,7 @@ RSpec.describe JanioAPI do
         pickup_state: "Singapore State",
         pickup_city: nil,
         pickup_province: nil,
-        pickup_date: ((Time.now + 1.week)).to_s,
+        pickup_date: ((Time.now + 1.week)).strftime("%Y-%-m-%-d"),
         pickup_notes: nil,
         items: [
           {item_desc: "Blue Male T-Shirt",
@@ -62,8 +62,8 @@ RSpec.describe JanioAPI do
 
       describe "presences" do
         attrs = [:service_id, :order_length, :order_width, :order_height, :order_weight, :consignee_name, :consignee_country,
-                 :consignee_address, :consignee_state, :consignee_email, :pickup_contact_name, :pickup_country, :pickup_address,
-                 :pickup_state]
+          :consignee_address, :consignee_state, :consignee_email, :pickup_contact_name, :pickup_country, :pickup_address,
+          :pickup_state]
 
         attrs.each do |attr|
           before { order.send("#{attr}=", nil) }
@@ -279,9 +279,9 @@ RSpec.describe JanioAPI do
         end
 
         it do
-          order.send(:reformat_before_save, true)
+          order.save
         rescue ArgumentError => e
-          expect(e.message).to eq("JanioAPI api_token is missing, please set it in the config.")
+          expect(e.message).to eq("JanioAPI api_token/api_tokens is missing, please set it in the config.")
         end
       end
 
