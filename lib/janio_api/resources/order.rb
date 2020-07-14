@@ -117,7 +117,7 @@ module JanioAPI
       # Track one or more tracking nos
       #
       # Check http://apidocs.janio.asia/track for more information
-      def track(tracking_nos, secret_key = nil)
+      def track(tracking_nos)
         raise ArgumentError, "tracking_nos must be an array" unless tracking_nos.is_a?(Array)
 
         body = {
@@ -125,10 +125,6 @@ module JanioAPI
           flatten_data: false,
           tracking_nos: tracking_nos
         }
-
-        headers[:secret_key] = secret_key unless secret_key.nil?
-
-        raise ArgumentError, "secret_key can't be blank" unless headers[:secret_key].present?
 
         retries = 0
         begin

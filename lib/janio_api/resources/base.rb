@@ -16,17 +16,5 @@ module JanioAPI
 
       super
     end
-
-    class << self
-      def headers
-        if _headers_defined?
-          _headers
-        elsif superclass != Object && superclass.headers
-          superclass.headers
-        else
-          _headers ||= {}
-        end
-      end
-    end
   end
 end
