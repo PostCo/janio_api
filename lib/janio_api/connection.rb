@@ -13,9 +13,9 @@ module JanioAPI
       }
       handle_response(result)
     rescue Timeout::Error => e
-      raise TimeoutError.new(e.message)
+      raise ActiveResource::TimeoutError.new(e.message)
     rescue OpenSSL::SSL::SSLError => e
-      raise SSLError.new(e.message)
+      raise ActiveResource::SSLError.new(e.message)
     end
   end
 end
