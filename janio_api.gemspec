@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "countries", "~> 3.0"
   spec.add_dependency "phonelib", "~> 0.6"
 
+  spec.add_development_dependency "zeitwerk", "~> 2.1", ">= 2.1.8"
   spec.add_development_dependency "rspec", "~> 3.2"
   spec.add_development_dependency "dotenv"
   spec.add_development_dependency "pry-byebug"
