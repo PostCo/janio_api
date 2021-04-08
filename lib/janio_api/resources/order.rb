@@ -86,6 +86,21 @@ module JanioAPI
     validate :route_supported?
 
     class << self
+      def with_custom_url(host, path, &action)
+        old_host = self.site
+        old_path = self.prefix
+
+        self.site = URI.parse(host)
+        self.prefix = path
+
+        result = action.call
+
+        self.site = old_host
+        self.prefix = old_path
+
+        result
+      end
+
       def tracking_path
         "/api/tracker/query-by-tracking-nos/"
       end
