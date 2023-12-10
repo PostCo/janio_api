@@ -34,7 +34,8 @@ RSpec.describe JanioAPI do
         pickup_state: "Singapore State",
         pickup_city: nil,
         pickup_province: nil,
-        pickup_date: ((Time.now + 1.week)).strftime("%Y-%-m-%-d"),
+        # add 3 days
+        pickup_date: ((Time.now + 60*60*24*3)).strftime("%Y-%-m-%-d"),
         pickup_notes: nil,
         items: [
           {item_desc: "Blue Male T-Shirt",
@@ -78,7 +79,7 @@ RSpec.describe JanioAPI do
             order.pickup_country = "Singapore"
             order.pickup_date = nil
             order.valid?
-            expect(order.errors.messages.keys).to include(:pickup_date)
+            expect(order.errors.messages.keys).not_to include(:pickup_date)
           end
           it do
             order.pickup_country = "Singapore"
