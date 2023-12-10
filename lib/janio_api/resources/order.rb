@@ -62,7 +62,6 @@ module JanioAPI
       :consignee_name, :consignee_country, :consignee_address, :consignee_state, :consignee_email,
       :pickup_contact_name, :pickup_country, :pickup_address, :pickup_state, presence: true
 
-    validates :pickup_date, presence: true, if: -> { PICKUP_DATE_ACCEPTED_COUNTRIES.include?(pickup_country) }
     validates :pickup_date, absence: true, if: -> { !PICKUP_DATE_ACCEPTED_COUNTRIES.include?(pickup_country) }
     validates :pickup_country, inclusion: {
       in: SUPPORTED_PICKUP_COUNTRIES,
