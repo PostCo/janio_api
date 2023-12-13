@@ -180,7 +180,9 @@ module JanioAPI
     end
 
     def set_service_id(service_category = "pickup")
-      @attributes[:service_id] = get_service_id(service_category) if @attributes[:service_id].nil?
+      return true unless @attributes[:service_id].nil?
+
+      @attributes[:service_id] = get_service_id(service_category)
     end
 
     # Tracks the current order
