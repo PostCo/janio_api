@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "activeresource", ">= 4.1.0"
-  spec.add_dependency "countries", "~> 3.0"
+  spec.add_dependency "countries", "~> 5.0"
   spec.add_dependency "phonelib", "~> 0.6"
 
   spec.add_development_dependency "zeitwerk", "~> 2.1", ">= 2.1.8"
